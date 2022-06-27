@@ -1,10 +1,12 @@
-import logger from 'pino';
+import pino from 'pino';
 import dayjs from 'dayjs';
 
-const log = logger({
-	prettyPrint: true, //TODO: Fix this deprecated issue
-	base: {
-		pid: false
+const log = pino({
+	transport: {
+		target: 'pino-pretty',
+		options: {
+			colorize: true
+		}
 	},
 	timestamp: () => `,"time":"${dayjs().format()}"`
 });
