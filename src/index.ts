@@ -37,6 +37,8 @@ function checkEnvEndpoints() {
 }
 
 function translateBoolToEmoji(boolInput: boolean): string {
+	if (process.platform == 'win32') return boolInput.toString();
+
 	if (boolInput) {
 		return '✅';
 	} else {
