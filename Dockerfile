@@ -15,7 +15,7 @@ FROM node:lts-alpine
 WORKDIR /usr
 
 COPY package.json ./
-RUN npm install --only=production
+RUN npm install --omit=dev
 
 COPY --from=0 /usr/build/src .
 RUN npm install pm2 -g
