@@ -11,6 +11,10 @@ const app = express();
 const port = Number(process.env.PORT ?? 8082);
 const host = process.env.HOST ?? 'localhost';
 
+export const useJSON = Boolean(process.env.JSON_RES ?? true);
+export const endpointRes = Boolean(process.env.ENDPOINT_RES ?? false);
+export const rootRes = Boolean(process.env.ROOT_RES ?? true);
+
 app.use(express.json());
 
 app.listen(port, host, () => {
@@ -23,13 +27,13 @@ app.on('error', (error) => {
 });
 
 function checkEnvEndpoints() {
-	if (process.env.ROOT_RES || process.env.ENDPOINT_RES) {
+	if (rootRes || endpointRes) {
 		log.info(
 			`⚡️ : Root Endpoint is ${translateBoolToEmoji(
-				Boolean(process.env.ROOT_RES)
-			)} and Healthcheck endpoint is ${translateBoolToEmoji(Boolean(process.env.ENDPOINT_RES))}`
+				rootRes
+			)} and Healthcheck endpoint is ${translateBoolToEmoji(endpointRes)}`
 		);
-		log.info(`⚡️ : JSON response is ${translateBoolToEmoji(Boolean(process.env.JSON_RES))}`);
+		log.info(`⚡️ : JSON response is ${translateBoolToEmoji(useJSON)}`);
 	} else {
 		log.error('❌ : Root and Healthcheck endpoints are both disabled!');
 		process.exit(1);
