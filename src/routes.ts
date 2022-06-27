@@ -9,13 +9,15 @@ export default function (app: Express) {
 
 function processRoot(req: Request, res: Response) {
 	if (process.env.ROOT_RES == 'true') res.send(processMessage(req));
+	else res.sendStatus(404);
 }
 function processEndpoint(req: Request, res: Response) {
 	if (process.env.ENDPOINT_RES == 'true') res.send(processMessage(req));
+	else res.sendStatus(404);
 }
 
 function processMessage(req: Request) {
-	log.info(`Request from: ${req.ip}`);
+	log.info(`⚡️ : Request from: ${req.ip}`);
 
 	if (process.env.JSON_RES == 'true') return '{"Status": "OK"}';
 	else return 'OK';
