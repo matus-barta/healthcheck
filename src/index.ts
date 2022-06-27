@@ -9,7 +9,7 @@ dotenv.config();
 const app = express();
 
 const port = Number(process.env.PORT ?? 8082);
-const host = process.env.HOST ?? 'localhost';
+const host = process.env.HOST ?? '0.0.0.0';
 
 export const useJSON = Boolean(process.env.JSON_RES ?? true);
 export const endpointRes = Boolean(process.env.ENDPOINT_RES ?? false);
