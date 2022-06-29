@@ -3,5 +3,4 @@ function isIsoDate(str: string) {
 	const d = new Date(str);
 	return d.toISOString() === str;
 }
-
 export default isIsoDate;

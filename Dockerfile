@@ -1,5 +1,5 @@
 #stage one
-FROM node:lts-alpine
+FROM node:16.15.1-alpine AS node-build
 WORKDIR /usr
 
 COPY package.json ./
@@ -11,13 +11,15 @@ RUN npm install
 RUN npm run build
 
 #stage two
-FROM node:lts-alpine
+FROM node:16.15.1-alpine
 WORKDIR /usr
 
+ENV NODE_ENV production
+
 COPY package.json ./
-RUN npm install --omit=dev
+RUN npm install
 
 COPY --from=0 /usr/build/src .
-RUN npm install pm2 -g
+RUN npm install pm2 --location=global
 
 CMD ["pm2-runtime","index.js"]

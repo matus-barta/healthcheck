@@ -1,32 +1,48 @@
 
 # Healthcheck for docker
 
-"Simple" docker container with healthcheck endpoint to call.
+Simple docker container with healthcheck endpoint to call.
 
-# Usage
+## Usage
 
-- HTTP request to `address:port/healthcheck` or `address:port`
-- Will return JSON `{Status : OK}` or plaintext `OK`
+- HTTP request to `address:port/healthcheck` or `address:port/`
+- Will return JSON `{"Status" : "OK"}` or plaintext `OK`
+- If the endpoint is disabled will return status `404`
 
-# Configurable via ENV variables
+## Getting started
 
-#### Defaults
+### Docker
 
 ```bash
-PORT=82
-HOST="localhost"
-ROOT_RES="false"
-ENDPOINT_RES="true"
-JSON_RES="true"
+docker run --name=healthcheck -p 8082:8082 --restart unless-stopped ghcr.io/matus-barta/healthcheck:latest
 ```
 
-*TODO: More description for ENV variables*
+## Configurable via ENV variables
 
-## Developing
+### Defaults
 
+```bash
+PORT=8082            # listening port
+HOST="0.0.0.0"       # listening IP address
+ROOT_RES="true"      # http://<domain>/
+ENDPOINT_RES="false" # http://<domain>/healthcheck
+JSON_RES="true"      # response in JSON
+```
+
+## Development
+
+- Download repository `git clone https://github.com/matus-barta/healthcheck`
+- Open directory `cd healthcheck`
 - Install dependencies with `npm install`
 - Start a development server `npm run dev`
 
-## Building
+### Build and run the docker container
+
+- Open healthcheck directory `cd healthcheck`
+- Build docker image `docker build -t healthcheck .`
+- Run the builded container `docker run -p 8082:8082 healthcheck`
+
+### Build and run locally
 
 - Run build: `npm run build`
+- Run build: `npm run start`
