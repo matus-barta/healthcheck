@@ -1,7 +1,7 @@
 {
   "name": "healthcheck",
   "version": "0.0.1",
-  "description": "Healthcheck node for docker",
+  "description": "Simple docker container with healthcheck endpoint API",
   "main": "build/src/index.js",
   "dependencies": {
     "dayjs": "^1.11.3",
