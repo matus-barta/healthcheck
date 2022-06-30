@@ -77,7 +77,11 @@ JSON_RES="true"      # response in JSON
 ### Build and run locally
 
 - Run build: `npm run build`
-- Run build: `npm run start`
+- Run start: `npm run start`
+
+### Testing
+
+- Run tests: `npm run build`
 
 ## Contributing
 
