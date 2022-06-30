@@ -9,17 +9,22 @@ export default function (app: Express) {
 }
 
 function processRoot(req: Request, res: Response) {
-	if (rootRes) res.send(processMessage(req));
+	if (rootRes) res.send(processMessage(req, res));
 	else res.sendStatus(404);
 }
 function processEndpoint(req: Request, res: Response) {
-	if (endpointRes) res.send(processMessage(req));
+	if (endpointRes) res.send(processMessage(req, res));
 	else res.sendStatus(404);
 }
 
-function processMessage(req: Request) {
+function processMessage(req: Request, res: Response) {
 	log.info(`⚡️ : Request from: ${req.ip}`);
 
-	if (useJSON) return '{"Status": "OK"}';
-	else return 'OK';
+	if (useJSON) {
+		res.type('json');
+		return '{"status": "OK"}';
+	} else {
+		res.type('text');
+		return 'OK';
+	}
 }
