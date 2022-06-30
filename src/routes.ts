@@ -1,6 +1,6 @@
 import { Express, Request, Response } from 'express';
 import log from './utils/logger';
-import { useJSON, rootRes, endpointRes } from './index';
+import { useJSON, rootRes, endpointRes } from './app';
 
 export default function (app: Express) {
 	// define a route handler for the default home page
@@ -18,13 +18,13 @@ function processEndpoint(req: Request, res: Response) {
 }
 
 function processMessage(req: Request, res: Response) {
-	log.info(`⚡️ : Request from: ${req.ip}`);
+	if (process.env.NODE_ENV != 'test') log.info(`⚡️ : Request from: ${req.ip}`);
 
 	if (useJSON) {
 		res.type('json');
 		return '{"status": "OK"}';
 	} else {
-		res.type('text');
+		res.type('text/plain');
 		return 'OK';
 	}
 }

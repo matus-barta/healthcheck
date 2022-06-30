@@ -1,11 +1,28 @@
-name: CI for releases
+name: CI
 
-on:
-  push:
-    branches: [ "master" ]
+on: [push]
 
 jobs:
-  build:
+  test:
+    runs-on: ubuntu-latest
+    if: github.ref != 'refs/heads/documentation'
+    strategy:
+      matrix:
+        node-version: [v16.15.1]  
+    steps:
+      - uses: actions/checkout@v2
+      - name: Use Node.js ${{ matrix.node-version }}
+        uses: actions/setup-node@master
+        with:
+          node-version: ${{ matrix.node-version }}
+      - name: Install modules
+        run: npm install
+      - name: Run tests
+        run: npm run test
+
+  build-and-publish:
+    needs: [test]
+    if: github.ref == 'refs/heads/master'
     runs-on: ubuntu-latest
     steps:
       - name: Checkout repository
