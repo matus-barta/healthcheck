@@ -8,7 +8,7 @@ jobs:
     if: github.ref != 'refs/heads/documentation'
     strategy:
       matrix:
-        node-version: [v16.15.1]  
+        node-version: [v18.14.0]  
     steps:
       - uses: actions/checkout@v2
       - name: Use Node.js ${{ matrix.node-version }}
