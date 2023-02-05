@@ -1,16 +1,16 @@
 version: "3.0"
 services:
-  healthcheck:
-    image: ghcr.io/matus-barta/healthcheck:latest
-    container_name: healthcheck
-    environment:
+  healthcheck: # name of the service
+    image: ghcr.io/matus-barta/healthcheck:latest # addres to the image in the repository
+    container_name: healthcheck # name of the container
+    environment: # here we setup our env vars
       - PORT=8082            # listening port
       - HOST="localhost"     # listening IP address
       - ROOT_RES="true"      # https://<domain>/
       - ENDPOINT_RES="false" # https://<domain>/healthcheck
       - JSON_RES="true"      # response in JSON
     ports:
-      - 8082:8082
-    restart: unless-stopped
+      - 8082:8082 # ports we will be listening on (external port : internal port)
+    restart: unless-stopped # dont stop the service
     security_opt:
-      - no-new-privileges:true
+      - no-new-privileges:true # some security stuff not really needed
