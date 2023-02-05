@@ -81,7 +81,7 @@ JSON_RES="true"      # response in JSON
 
 ### Testing
 
-- Run tests: `npm run build`
+- Run tests: `npm run test`
 
 ## Contributing
 
