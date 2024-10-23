@@ -1,6 +1,6 @@
 # stage one
 # we base you dockerfile on alpine linux with node preinstalled
-FROM node:20.12.1-alpine AS node-build
+FROM node:20.18.0-alpine AS node-build
 
 # set our work directory
 WORKDIR /usr
@@ -17,7 +17,7 @@ RUN npm run build
 
 # stage two
 # again we base the package on alpine linux with node
-FROM node:20.12.1-alpine
+FROM node:20.18.0-alpine
 WORKDIR /usr
 
 # set environment variable that we are in production
