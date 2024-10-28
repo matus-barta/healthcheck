@@ -8,7 +8,7 @@ jobs:
     if: github.ref != 'refs/heads/documentation'
     strategy:
       matrix:
-        node-version: [v18.14.0]  
+        node-version: [v20.18.0]
     steps:
       - uses: actions/checkout@v4
       - name: Use Node.js ${{ matrix.node-version }}
@@ -50,5 +50,5 @@ jobs:
           context: .
           file: ./Dockerfile
           push: true
-          tags: | 
+          tags: |
             ghcr.io/${{ github.repository }}:latest
