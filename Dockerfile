@@ -18,6 +18,7 @@ RUN pnpm fetch --prod
 COPY . /app
 
 # build the project
+RUN pnpm --package=typescript dlx tsc 
 RUN pnpm run build
 
 # now we prepare the final package with builded files
