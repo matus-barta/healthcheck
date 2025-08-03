@@ -4,21 +4,30 @@ on: [push]
 
 jobs:
   test:
-    runs-on: ubuntu-latest
+    runs-on: ubuntu-24.04
     if: github.ref != 'refs/heads/documentation'
     strategy:
       matrix:
-        node-version: [v20.18.0]
+        node-version: [24]
     steps:
       - uses: actions/checkout@v4
+      - name: Install pnpm
+        uses: pnpm/action-setup@v4
+        with:
+          version: 10
+          run_install: false
       - name: Use Node.js ${{ matrix.node-version }}
-        uses: actions/setup-node@master
+        uses: actions/setup-node@v4
         with:
           node-version: ${{ matrix.node-version }}
-      - name: Install modules
-        run: npm install
+          cache-dependency-path: ./pnpm-lock.yaml
+          cache: "pnpm"
+      - name: Install dependencies
+        run: pnpm i
+      - name: Run build
+        run: pnpm run build
       - name: Run tests
-        run: npm run test
+        run: pnpm run test
 
   build-and-publish:
     needs: [test]

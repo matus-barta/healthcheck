@@ -1,6 +1,6 @@
 # stage one
 # we base you dockerfile on alpine linux with node preinstalled
-FROM node:22.14.0-alpine AS node-build
+FROM node:24.4.0-alpine AS node-build
 
 # set our work directory
 WORKDIR /usr
@@ -17,11 +17,11 @@ RUN npm run build
 
 # stage two
 # again we base the package on alpine linux with node
-FROM node:22.14.0-alpine
+FROM node:24.4.0-alpine
 WORKDIR /usr
 
 # set environment variable that we are in production
-ENV NODE_ENV production
+ENV NODE_ENV=production
 
 # now we have builded the project so we copy only package.json and install them
 COPY package.json ./
