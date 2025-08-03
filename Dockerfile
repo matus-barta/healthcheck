@@ -5,30 +5,31 @@ ENV PNPM_HOME="/pnpm"
 ENV PATH="$PNPM_HOME:$PATH"
 RUN corepack enable
 
-# set our work directory
 WORKDIR /app
 
 # run pnpm to install packages
-FROM base AS build
-COPY pnpm-lock.yaml /app
-COPY pnpm-workspace.yaml /app
-RUN pnpm fetch
-# copy all the source files
-COPY . /app
+FROM base AS fetch
+COPY package.json ./
+COPY pnpm-lock.yaml ./
+COPY pnpm-workspace.yaml ./
+RUN pnpm install --frozen-lockfile
+
 # build the project
+FROM fetch AS build
+COPY tsconfig.json ./
+COPY src ./src
 RUN pnpm run build
 
-# get the prod packages
-FROM base AS prod
-COPY pnpm-lock.yaml /app
-RUN pnpm fetch --prod
+# prune the non prod packages
+FROM fetch AS prod
+RUN pnpm prune --production
 
 # now we prepare the final package with builded files
 FROM base
+ENV NODE_ENV=production
+COPY --from=fetch /app/package.json /app/package.json
 COPY --from=prod /app/node_modules /app/node_modules
 COPY --from=build /app/build /app/build
 
-# set environment variable that we are in production
-ENV NODE_ENV=production
 # start the application
 CMD ["pnpm","start"]
