@@ -1,36 +1,31 @@
-# stage one
-# we base you dockerfile on alpine linux with node preinstalled
-FROM node:24.4.0-alpine AS node-build
+# we base you dockerfile on debian with node preinstalled
+FROM node:24.4.0-slim AS base
+
+ENV PNPM_HOME="/pnpm"
+ENV PATH="$PNPM_HOME:$PATH"
+RUN corepack enable
 
 # set our work directory
-WORKDIR /usr
+WORKDIR /app
 
-# copy package.json tsconfig.json and all the source files
-COPY package.json ./
-COPY tsconfig.json ./
-COPY src ./src
+# run pnpm to install packages
+FROM base AS prod
 
-# run npm to install packages and build the project
-RUN ls -a
-RUN npm install
-RUN npm run build
+COPY pnpm-lock.yaml /app
+RUN pnpm fetch --prod
 
-# stage two
-# again we base the package on alpine linux with node
-FROM node:24.4.0-alpine
-WORKDIR /usr
+# copy all the source files
+COPY . /app
+
+# build the project
+RUN pnpm run build
+
+# now we prepare the final package with builded files
+FROM base
+COPY --from=prod /app/node_modules /app/node_modules
+COPY --from=prod /app/build /app/build
 
 # set environment variable that we are in production
 ENV NODE_ENV=production
-
-# now we have builded the project so we copy only package.json and install them
-COPY package.json ./
-RUN npm install
-
-# we copy the builded source files only and install pm2 package globally
-# pm2 (production manager) will let out app run indefinitely (and som other stuff)
-COPY --from=0 /usr/build/src .
-RUN npm install pm2 --location=global
-
 # start the application
-CMD ["pm2-runtime","index.js"]
+CMD ["pnpm","start"]

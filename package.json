@@ -1,6 +1,6 @@
 {
 	"name": "healthcheck",
-	"version": "0.1.1",
+	"version": "0.2.0",
 	"description": "Simple docker container with healthcheck endpoint API",
 	"main": "build/src/index.js",
 	"dependencies": {
@@ -34,12 +34,12 @@
 	},
 	"scripts": {
 		"start": "node .",
-		"build": "npx tsc",
+		"build": "tsc --build",
 		"dev": "tsnd --respawn ./src/index.ts",
 		"lint": "prettier . && eslint . --ext .ts",
 		"test": "jest",
-		"ncu": "npx npm-check-updates",
-		"ncu-update": "npx npm-check-updates -u"
+		"ncu": "pnpx npm-check-updates",
+		"ncu-update": "pnpx npm-check-updates -u"
 	},
 	"author": "Matus Barta",
 	"license": "MIT",
