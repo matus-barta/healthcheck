@@ -11,6 +11,7 @@ WORKDIR /app
 # run pnpm to install packages
 FROM base AS build
 COPY pnpm-lock.yaml /app
+COPY pnpm-workspace.yaml /app
 RUN pnpm fetch
 # copy all the source files
 COPY . /app
