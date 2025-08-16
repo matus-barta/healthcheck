@@ -13,7 +13,8 @@ export default function (app: Express) {
 
 // handle root route
 function processRoot(req: Request, res: Response) {
-	if (rootRes) res.send(processMessage(req, res)); // if enabled respond
+	if (rootRes)
+		res.send(processMessage(req, res)); // if enabled respond
 	else res.sendStatus(404); // if not return 404
 }
 
@@ -23,7 +24,7 @@ function processEndpoint(req: Request, res: Response) {
 	else res.sendStatus(404);
 }
 
-// log request (if testing) and response with JSON or plaintext based on settings 
+// log request (if testing) and response with JSON or plaintext based on settings
 function processMessage(req: Request, res: Response) {
 	if (process.env.NODE_ENV != 'test') log.info(`⚡️ : Request from: ${req.ip}`);
 
