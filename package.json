@@ -1,6 +1,6 @@
 {
 	"name": "healthcheck",
-	"version": "0.2.0",
+	"version": "0.3.1",
 	"description": "Simple docker container with healthcheck endpoint API",
 	"main": "build/src/index.js",
 	"dependencies": {
@@ -36,7 +36,8 @@
 		"start": "node .",
 		"build": "tsc --build",
 		"dev": "tsnd --respawn ./src/index.ts",
-		"lint": "prettier . && eslint . --ext .ts",
+		"format": "prettier --write .",
+		"lint": "prettier --check . && eslint .",
 		"test": "jest",
 		"ncu": "pnpx npm-check-updates",
 		"ncu-update": "pnpx npm-check-updates -u"

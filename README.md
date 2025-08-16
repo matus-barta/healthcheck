@@ -1,4 +1,3 @@
-
 # Healthcheck API endpoint for docker
 
 Simple and beginner-friendly docker container with healthcheck endpoint to call.
@@ -7,8 +6,8 @@ This code and repo is intended to be simple to understand, so I try include basi
 
 **Practical use:** I use this to check if [DDNS](https://github.com/timothymiller/cloudflare-ddns) is correctly running and pointing to my homelab. The service is running on docker managed by [Portainer](https://www.portainer.io/) and behind [Nginx Proxy Manager](https://nginxproxymanager.com/). I check if the service is up with [Uptime-Kuma](https://github.com/louislam/uptime-kuma), this way I can see if all parts of the chain are working correctly.
 
-*Personal disclaimer: I am not professional developer. I am just hobbyist, there may be some bugs or update that may cause instability or unexpected behavior and there may be security issues, if you find any please let me know or if you want, make a PR.*
-*Thank you.*
+_Personal disclaimer: I am not professional developer. I am just hobbyist, there may be some bugs or update that may cause instability or unexpected behavior and there may be security issues, if you find any please let me know or if you want, make a PR._
+_Thank you._
 
 ## Usage
 
@@ -27,17 +26,17 @@ docker run --name=healthcheck -p 8082:8082 --restart unless-stopped ghcr.io/matu
 ### Using Docker-Compose
 
 ```yaml
-version: "3.0"
+version: '3.0'
 services:
   healthcheck:
     image: ghcr.io/matus-barta/healthcheck:latest
     container_name: healthcheck
     environment:
-      - PORT=8082            # listening port
-      - HOST="localhost"     # listening IP address
-      - ROOT_RES="true"      # https://<domain>/
+      - PORT=8082 # listening port
+      - HOST="localhost" # listening IP address
+      - ROOT_RES="true" # https://<domain>/
       - ENDPOINT_RES="false" # https://<domain>/healthcheck
-      - JSON_RES="true"      # response in JSON
+      - JSON_RES="true" # response in JSON
     ports:
       - 8082:8082
     restart: unless-stopped
@@ -61,7 +60,7 @@ JSON_RES="true"      # response in JSON
 
 ## Development
 
-*Prerequisites: Installed Node.JS with NPM, docker and Git.*
+_Prerequisites: Installed Node.JS with NPM, docker and Git._
 
 - Download repository `git clone https://github.com/matus-barta/healthcheck`
 - Open directory `cd healthcheck`
