@@ -13,7 +13,7 @@ app.listen(port, host, () => {
 
 // HTTP server error handling
 app.on('error', (error) => {
-	log.error('❌ : Server error:', error);
+	log.error(`❌ : Server error: ${error}`);
 });
 
 // write to console what configuration we are running and if the config. is incorrect we terminate the application
