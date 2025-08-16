@@ -1,0 +1,47 @@
+name: Lint check
+on:
+  push:
+    branches: [main, master]
+  pull_request:
+    branches: [main, master]
+jobs:
+  lint-check:
+    timeout-minutes: 10
+    runs-on: ubuntu-24.04
+    strategy:
+      matrix:
+        node-version: [24]
+    steps:
+      - uses: actions/checkout@v5
+
+      - name: Install pnpm
+        uses: pnpm/action-setup@v4
+        with:
+          run_install: false
+
+      - name: Use Node.js ${{ matrix.node-version }}
+        uses: actions/setup-node@v4
+        with:
+          node-version: ${{ matrix.node-version }}
+          cache-dependency-path: ./pnpm-lock.yaml
+          cache: 'pnpm'
+
+      - name: Install dependencies
+        run: pnpm i
+
+      - name: Run lint
+        id: lint
+        run: pnpm run lint
+
+      - name: Comment on how to fix lint issue
+        if: (github.event_name == 'pull_request') && (failure() && steps.lint.outcome == 'failure')
+        uses: actions/github-script@v7
+        with:
+          github-token: ${{secrets.GITHUB_TOKEN}}
+          script: |
+            github.rest.issues.createComment({
+              issue_number: context.issue.number,
+              owner: context.repo.owner,
+              repo: context.repo.repo,
+              body: '‼️ Please run `pnpm run format` on your PR! Thank you. ‼️'
+            })
