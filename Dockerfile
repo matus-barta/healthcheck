@@ -1,5 +1,5 @@
 # we base you dockerfile on debian with node preinstalled
-FROM node:24.6.0-slim AS base
+FROM node:24.7.0-slim AS base
 
 ENV PNPM_HOME="/pnpm"
 ENV PATH="$PNPM_HOME:$PATH"
