@@ -4,7 +4,7 @@
 	"description": "Simple docker container with healthcheck endpoint API",
 	"main": "build/src/index.js",
 	"dependencies": {
-		"dayjs": "1.11.13",
+		"dayjs": "1.11.18",
 		"dotenv": "17.2.1",
 		"express": "5.1.0",
 		"pino": "9.9.0",
