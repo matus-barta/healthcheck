@@ -1,4 +1,5 @@
 testData/
+__tests__/*.js*
 build/
 node_modules/
 .node_modules/
