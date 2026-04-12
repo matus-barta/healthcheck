@@ -67,8 +67,8 @@ importers:
         specifier: 30.3.0
         version: 30.3.0(@types/node@25.5.2)(ts-node@10.9.2(@types/node@25.5.2)(typescript@6.0.2))
       npm-check-updates:
-        specifier: 20.0.0
-        version: 20.0.0
+        specifier: 20.0.1
+        version: 20.0.1
       prettier:
         specifier: 3.8.1
         version: 3.8.1
@@ -1365,7 +1365,7 @@ packages:
 
   glob@7.2.3:
     resolution: {integrity: sha512-nFR0zLpU2YCaRxwoCJvL6UvCH2JFyFVIvwTLsIf21AuHlMskA1hhTdk+LlYJtOlYt9v6dvszD2BGRqBL+iQK9Q==}
-    deprecated: Glob versions prior to v9 are no longer supported
+    deprecated: Old versions of glob are not supported, and contain widely publicized security vulnerabilities, which have been fixed in the current version. Please update. Support for old versions may be purchased (at exorbitant rates) by contacting i@izs.me
 
   globals@17.4.0:
     resolution: {integrity: sha512-hjrNztw/VajQwOLsMNT1cbJiH2muO3OROCHnbehc8eY5JyD2gqz4AcMHPqgaOR59DjgUjYAYLeH699g/eWi2jw==}
@@ -1834,8 +1834,8 @@ packages:
     resolution: {integrity: sha512-6eZs5Ls3WtCisHWp9S2GUy8dqkpGi4BVSz3GaqiE6ezub0512ESztXUwUB6C6IKbQkY2Pnb/mD4WYojCRwcwLA==}
     engines: {node: '>=0.10.0'}
 
-  npm-check-updates@20.0.0:
-    resolution: {integrity: sha512-qCs02x51irGf0okCttwv8lHEO2NxT903IJ2bKpG82kIzkm6pfT3CoWB5YIvqY/wi/DdnYRfI7eVfCYYymQgvCg==}
+  npm-check-updates@20.0.1:
+    resolution: {integrity: sha512-YuzpyL1Od5dJzpeETVh2H5o1I8tpi0zkf6v7k7rXwUDfiDliBX9dgVIb7FlEfp8Lu2RtECAv63ZHm/rqpIhYsw==}
     engines: {node: '>=20.0.0', npm: '>=8.12.1'}
     hasBin: true
 
@@ -4499,7 +4499,7 @@ snapshots:
 
   normalize-path@3.0.0: {}
 
-  npm-check-updates@20.0.0: {}
+  npm-check-updates@20.0.1: {}
 
   npm-run-path@4.0.1:
     dependencies:
