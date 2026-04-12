@@ -34,7 +34,7 @@ jobs:
 
       - name: Comment on how to fix lint issue
         if: (github.event_name == 'pull_request') && (failure() && steps.lint.outcome == 'failure')
-        uses: actions/github-script@v8
+        uses: actions/github-script@v9
         with:
           github-token: ${{secrets.GITHUB_TOKEN}}
           script: |
