@@ -1,9 +1,9 @@
 # we base you dockerfile on debian with node preinstalled
-FROM node:26.5.1-trixie-slim AS base
+FROM node:24.18.1-trixie-slim AS base
 
 ENV PNPM_HOME="/pnpm"
 ENV PATH="$PNPM_HOME:$PATH"
-RUN corepack enable
+RUN npm install -g pnpm@11
 
 WORKDIR /app
 
@@ -22,7 +22,7 @@ RUN pnpm run build
 
 # prune the non prod packages
 FROM fetch AS prod
-RUN pnpm prune --production
+RUN pnpm install --frozen-lockfile --prod
 
 # now we prepare the final package with builded files
 FROM base
@@ -32,4 +32,4 @@ COPY --from=prod /app/node_modules /app/node_modules
 COPY --from=build /app/build /app/build
 
 # start the application
-CMD ["pnpm","start"]
+CMD ["node", "build/src/index.js"]

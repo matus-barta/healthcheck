@@ -8,7 +8,7 @@ jobs:
     if: github.ref != 'refs/heads/documentation'
     strategy:
       matrix:
-        node-version: [26]
+        node-version: [24]
     steps:
       - uses: actions/checkout@v7
 
@@ -26,7 +26,7 @@ jobs:
           cache: 'pnpm'
 
       - name: Install dependencies
-        run: pnpm i
+        run: pnpm install --frozen-lockfile
 
       - name: Run build
         run: pnpm run build
@@ -66,3 +66,4 @@ jobs:
           push: true
           tags: |
             ghcr.io/${{ github.repository }}:latest
+            ghcr.io/${{ github.repository }}:${{ github.sha }}
