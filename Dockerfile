@@ -31,5 +31,13 @@ COPY --from=fetch /app/package.json /app/package.json
 COPY --from=prod /app/node_modules /app/node_modules
 COPY --from=build /app/build /app/build
 
+# drop the root privileges the build stages needed; the node image ships this user
+USER node
+
+# the point of this image is an endpoint that answers, so check that one actually does.
+# either route may be the enabled one depending on ROOT_RES / ENDPOINT_RES, so accept either.
+HEALTHCHECK --interval=30s --timeout=3s --start-period=5s --retries=3 \
+	CMD node -e "const p=process.env.PORT??8082,get=r=>fetch('http://127.0.0.1:'+p+r).then(x=>x.ok).catch(()=>false);Promise.all([get('/'),get('/healthcheck')]).then(r=>process.exit(r.includes(true)?0:1))"
+
 # start the application
 CMD ["node", "build/src/index.js"]

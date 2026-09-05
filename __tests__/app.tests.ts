@@ -1,24 +1,15 @@
-import { Server } from 'http';
 import request from 'supertest';
-import { afterEach, beforeAll, beforeEach, describe, expect, it } from '@jest/globals';
-import app, { port, host, setEnv } from '../src/app';
-
-let server: Server;
+import { beforeAll, describe, expect, it } from '@jest/globals';
+import app, { setEnv } from '../src/app';
 
 // setup before all tests begin
 beforeAll(() => {
 	process.env.NODE_ENV = 'test';
 });
 
-// setup before all tests begin
-beforeEach(() => {
-	server = app.listen(port, host); // start express server
-});
-
-// after each test is done
-afterEach(() => {
-	server.close(); // stop the express server
-});
+// note: we never call app.listen() here. supertest's request(app) starts the app on its own
+// ephemeral port for each request, so binding the configured port would only make parallel
+// test files fight over it.
 
 // testing endpoint /healthcheck
 describe('ENDPOINT: /healthcheck', () => {

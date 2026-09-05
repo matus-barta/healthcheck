@@ -43,12 +43,6 @@
       "skillPath": "skills/security-review/SKILL.md",
       "computedHash": "ec9792f5fd065e020c48ab5a57707c83435c286c449ba98dfa726d7b1842c868"
     },
-    "svelte-core-bestpractices": {
-      "source": "sveltejs/ai-tools",
-      "sourceType": "github",
-      "skillPath": "plugins/claude/svelte/skills/svelte-core-bestpractices/SKILL.md",
-      "computedHash": "98b4ee346ac45e13740c9f3353b604d5c6e844c96cdc8867052fa961cbdb525d"
-    },
     "typescript-advanced-types": {
       "source": "wshobson/agents",
       "sourceType": "github",

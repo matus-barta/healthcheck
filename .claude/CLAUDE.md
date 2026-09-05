@@ -6,16 +6,15 @@ This file provides guidance to Claude Code (claude.ai/code) when working with co
 
 A single small Express service in TypeScript that answers `OK` on `/` and/or `/healthcheck`, published as a Docker image to `ghcr.io/matus-barta/healthcheck`. It exists to give an uptime monitor something to poll so that a whole chain — DDNS, reverse proxy, container — can be proven alive from outside. There is no database, no state and no second service.
 
-| Path                   | What it is                                                                        |
-| ---------------------- | --------------------------------------------------------------------------------- |
-| `src/index.ts`         | Process entry: starts the listener, prints the config, exits 1 if both routes off |
-| `src/app.ts`           | The Express app and the five config values read from `process.env`                |
-| `src/routes.ts`        | The two handlers; each returns `OK` or 404 depending on config                    |
-| `src/utils/logger.ts`  | pino + pino-pretty singleton                                                      |
-| `src/utils/isoDate.ts` | ISO-8601 validator — currently imported by nothing                                |
-| `__tests__/`           | supertest coverage of both routes across every config combination                 |
-| `Dockerfile`           | Four-stage build (`base` → `fetch` → `build` / `prod` → final)                    |
-| `docker-compose.yml`   | Consumer-facing example that _pulls_ the published image                          |
+| Path                  | What it is                                                                        |
+| --------------------- | --------------------------------------------------------------------------------- |
+| `src/index.ts`        | Process entry: starts the listener, prints the config, exits 1 if both routes off |
+| `src/app.ts`          | The Express app and the five config values read from `process.env`                |
+| `src/routes.ts`       | The two handlers; each returns `OK` or 404 depending on config                    |
+| `src/utils/logger.ts` | pino + pino-pretty singleton                                                      |
+| `__tests__/`          | supertest coverage of both routes across every config combination                 |
+| `Dockerfile`          | Four-stage build (`base` → `fetch` → `build` / `prod` → final)                    |
+| `docker-compose.yml`  | Consumer-facing example that _pulls_ the published image                          |
 
 **The README states the intent explicitly: this repo is meant to be readable by a beginner.** The dense line-by-line comments in `src/` are the product, not clutter. Preserve them when editing, and comment new code in the same voice. Do not "clean up" the codebase by deleting explanation.
 
@@ -64,22 +63,9 @@ docker run -p 8082:8082 healthcheck
 
 ## Testing
 
-**`pnpm test` runs the same suite up to three times, and can fail intermittently.** Jest's only default ignore is `node_modules`, `tsconfig.json` sets no `include`/`exclude`, and `allowJs` is on — so `tsc --build` compiles the tests too, and jest collects every copy it finds:
+`tsconfig.json` sets `"include": ["src"]`, so `tsc --build` compiles only the application and `build/` never contains a second copy of the tests. Keep it that way: without it, jest collects the compiled duplicates alongside the source suite, because its only default ignore is `node_modules` and `allowJs` is on.
 
-```
-__tests__/app.tests.ts          # the source
-__tests__/app.tests.js          # stale output, gitignored, only on older working copies
-build/__tests__/app.tests.js    # current output, present after any build
-```
-
-Every copy's `beforeEach` binds port 8082, so concurrent workers can collide on `EADDRINUSE`. Whether they actually do is a race, which is why the suite usually looks fine:
-
-- **Two suites** (the `.ts` plus `build/`, which is what CI has) pass reliably, warm cache or cold. CI is not affected.
-- **Three suites** — a working copy that still has the stale `__tests__/app.tests.js` — pass on a warm jest cache but fail on a cold one, because ts-jest transpiling the `.ts` copy stretches its run long enough to overlap the two `.js` copies. `pnpm exec jest --clearCache` before a run reproduces it.
-
-So a green `pnpm test` here does not mean one suite ran; it usually means three ran and got lucky on scheduling. Deleting the stale `__tests__/app.tests.js*` (gitignored build leftovers, not source) removes the failure mode. The durable fix is a `testMatch` or `testPathIgnorePatterns` in `jest.config.js` pinning jest to `__tests__/*.ts`, so the duplicates can never be collected.
-
-Note also that the `app.listen()` in `beforeEach` is not needed at all — `request(app)` makes supertest bind its own ephemeral port — so removing it would remove the port contention entirely.
+That mattered because the tests used to share one listener on the configured port. They no longer call `app.listen()` at all — `request(app)` makes supertest bind its own ephemeral port per request — so there is nothing for parallel workers to contend over. Do not reintroduce a `beforeEach` that binds `port`; it produced an `EADDRINUSE` flake that failed approximately one cold-cache run in ten, and CI clears its jest cache on every run.
 
 Tests set `NODE_ENV=test`, which is the flag `routes.ts` checks to suppress the per-request log line. Keep that guard when adding logging to a request path, or the test output becomes unreadable.
 
@@ -89,7 +75,9 @@ Four stages. `fetch` installs the full dependency set from the frozen lockfile; 
 
 `pino-pretty` is a **runtime** dependency, not a dev one, because `logger.ts` configures it as the transport unconditionally — including in production. Moving it to `devDependencies` breaks the image at startup.
 
-The base image is pinned to an exact patch (`node:24.20.0-trixie-slim`) and bumped by Renovate. There is no `USER` directive, so the container runs as root; `docker-compose.yml` compensates with `no-new-privileges`.
+The base image is pinned to an exact patch (`node:24.20.0-trixie-slim`) and bumped by Renovate. The final stage drops to the image's built-in `node` user (uid 1000), and `docker-compose.yml` adds `no-new-privileges`.
+
+A `HEALTHCHECK` polls the app over loopback and passes if **either** route answers 200, because which one is enabled depends on `ROOT_RES`/`ENDPOINT_RES`. It shells out to `node -e` rather than curl, which the slim image does not ship. It assumes the app is reachable on `127.0.0.1`; a custom `HOST` that binds elsewhere will report unhealthy.
 
 ## CI
 
@@ -97,7 +85,7 @@ The base image is pinned to an exact patch (`node:24.20.0-trixie-slim`) and bump
 
 `.github/workflows/lint.yml` runs `pnpm lint` on PRs to `main`/`master` and, on failure, comments telling the author to run `pnpm run format`.
 
-The two workflows install different pnpm majors (11 in the publish workflow, 10 in the lint workflow) and the Dockerfile pins `pnpm@11`. There is no `packageManager` field in `package.json` to make them agree; adding one is the fix if this ever bites.
+Both workflows and the Dockerfile install pnpm 11, and `package.json` pins `packageManager` to an exact version. Change all four together if you bump it.
 
 ## Conventions
 
