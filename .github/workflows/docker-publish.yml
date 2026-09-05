@@ -75,3 +75,7 @@ jobs:
           tags: |
             ghcr.io/${{ github.repository }}:latest
             ghcr.io/${{ github.repository }}:${{ github.sha }}
+          # mode=max caches the intermediate stages too (base/fetch/build/prod),
+          # not just the final image; the pnpm installs are the expensive part
+          cache-from: type=gha
+          cache-to: type=gha,mode=max
