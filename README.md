@@ -82,6 +82,48 @@ _Prerequisites: Installed Node.JS with NPM, docker and Git._
 
 - Run tests: `npm run test`
 
+## Nightly autofix
+
+`.github/workflows/claude-autofix.yml` runs once a night and tries to repair one pull request whose
+CI is red. It never merges anything. When it manages a fix it pushes to the pull request branch and
+leaves the pull request for review; when it cannot, it comments saying what is broken instead.
+
+Most of the pull requests it sees are Renovate's. `renovate.json` merges passing dependency bumps
+straight to the branch without opening a pull request at all, so a Renovate pull request that is
+still open is a bump that already failed — exactly the thing worth a repair attempt.
+
+The two long parts live next to the workflow rather than inside it: `.github/scripts/select-failing-pr.js`
+decides which pull request to pick, and `.github/prompts/claude-autofix.md` is what Claude is asked to do.
+Edit those to change its behaviour.
+
+Note that once anything pushes to a Renovate branch, Renovate stops updating it. If you would rather
+Renovate start the bump over from scratch, close the pull request and let it be recreated.
+
+### Turning it on
+
+1. Install the [Claude GitHub App](https://github.com/apps/claude) on the repository.
+2. Run `claude setup-token` locally and save the result as the repository secret
+   `CLAUDE_CODE_OAUTH_TOKEN`. The token bills against that account's Claude subscription.
+
+Without the secret the workflow's triage step still runs and costs nothing; only the repair step
+fails.
+
+### Keeping the cost down
+
+The workflow spends the same subscription budget a person does, so it is built to spend as little as
+possible:
+
+- The job that looks for a failing pull request makes plain GitHub API calls and uses no Claude
+  tokens. On a night with nothing red, that is the entire run.
+- At most one pull request per night, one run per night, capped at 15 turns on Sonnet.
+- A pull request whose newest commit came from Claude is skipped. If Claude has already tried and CI
+  is still failing, it needs a person, not another attempt.
+- It runs at 03:10 local time so that the five-hour usage window it opens has expired again before
+  the morning.
+
+To try it without spending anything, run it by hand from the Actions tab: `dry_run` defaults to true
+and reports which pull request it would have picked.
+
 ## Contributing
 
 - Feel free to create pull request with feature or bug.

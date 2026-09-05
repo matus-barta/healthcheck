@@ -15,6 +15,9 @@ A human must create the commit.
 A human remains responsible for the contribution.
 ```
 
+One narrow exception to "a human must create the commit" is defined in
+[Supervised automation](#supervised-automation).
+
 ## Human responsibility
 
 All AI-assisted work must be meaningfully reviewed and understood by a human before it is included in the repository.
@@ -48,6 +51,33 @@ AI agents are not permitted to:
 - Make final architectural, security, privacy, licensing, or policy decisions
 
 An AI tool may suggest changes or prepare files in a supervised local working tree. A human must review the complete result, select the intended changes, and create the commit personally.
+
+### Supervised automation
+
+The repository owner may run a scheduled agent that pushes to an existing pull request branch. At
+the time of writing the only one is `.github/workflows/claude-autofix.yml`, which attempts a repair
+on a pull request whose CI is failing.
+
+This exception exists because the pull requests it acts on are themselves automated. Renovate opens
+a pull request only when a dependency bump breaks the build, and it pushes those branches without
+human authorship already. An automated attempt at the accompanying code fix does not change who
+decides: the owner still reads the diff and merges it, or does not.
+
+The exception is limited to the following, and grants nothing beyond it:
+
+- Commits and pushes to the head branch of an already open pull request, in this repository only
+- Comments on that pull request
+
+An automated agent still must not merge or approve a pull request, change its base branch, push to
+`master` or to any branch without an open pull request, create tags or releases, publish the
+container image, alter repository settings or branch protections, or act on a pull request whose
+head branch lives in a fork.
+
+Everything in [Human responsibility](#human-responsibility) and [Required review](#required-review)
+applies unchanged to the resulting commits. The owner reviews the complete diff, understands it, and
+is answerable for it exactly as if it had been typed by hand. A commit that cannot be explained is
+reverted, not merged. Where the agent has pushed a commit, "create the commit personally" is
+replaced by an explicit merge decision, and by nothing less.
 
 ## Required review
 
@@ -116,4 +146,4 @@ Maintainers may reject contributions that:
 - Contain fabricated APIs, dependencies, references, or test results
 - Introduce unexplained or unrelated changes
 - Create security, privacy, licensing, or maintainability concerns
-- Appear to have been submitted autonomously
+- Appear to have been submitted autonomously, outside [Supervised automation](#supervised-automation)

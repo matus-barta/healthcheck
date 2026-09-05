@@ -85,13 +85,17 @@ A `HEALTHCHECK` polls the app over loopback and passes if **either** route answe
 
 `.github/workflows/lint.yml` runs `pnpm lint` on PRs to `main`/`master` and, on failure, comments telling the author to run `pnpm run format`.
 
-Both workflows and the Dockerfile install pnpm 11, and `package.json` pins `packageManager` to an exact version. Change all four together if you bump it.
+`.github/workflows/claude-autofix.yml` is the nightly repair pass: it finds one open pull request whose CI is red and lets Claude attempt a fix, pushing to that pull request's branch. Two crons an hour apart both mean 03:10 Europe/Bratislava, and a local-hour guard in the `select` job discards whichever one DST made wrong — so exactly one run happens per night. `select` costs no Claude tokens, and everything expensive is gated behind its output. It is the one workflow permitted to write to the repository; see the AI policy section below.
+
+That workflow keeps its two long pieces outside the YAML, in the usual place for GitHub Actions helpers: the triage logic is `.github/scripts/select-failing-pr.js`, loaded by `actions/github-script` with `require`, and Claude's instructions are `.github/prompts/claude-autofix.md`. Both are read in the `select` job, which has the **default branch** checked out — `fix` has the pull request's own branch, so building the prompt there would let a pull request rewrite the instructions used to repair it. The prompt file's `{{PR_NUMBER}}` and `{{REPOSITORY}}` placeholders are filled in by a `sed` step, and its HTML comment header is stripped before Claude sees it.
+
+All three workflows and the Dockerfile install pnpm 11, and `package.json` pins `packageManager` to an exact version. Change all five together if you bump it.
 
 ## Conventions
 
 Prettier: tabs, single quotes, semicolons, no trailing commas, 100 columns.
 
-**Prettier is not scoped away from the vendored skills, and `pnpm lint` currently fails because of it.** `.prettierignore` covers build output and lockfiles but not `.agents/` or `skills-lock.json`, so `prettier --check .` walks 36 vendored skill files it did not write, plus the lock file. That markdown contains annotated samples a formatter should not touch — add `.agents/` and `skills-lock.json` to `.prettierignore` rather than reformatting them.
+**Prettier is scoped away from the vendored skills, and it has to stay that way.** Alongside build output and lockfiles, `.prettierignore` lists `.agents/`, `.claude/skills/` and `skills-lock.json`. Drop any of those three and `prettier --check .` starts walking the forty-odd vendored files the project did not write, and `pnpm lint` fails — that markdown contains annotated samples a formatter should not touch. Add new vendored paths to `.prettierignore` rather than reformatting them.
 
 Agent skills are vendored in `.agents/skills/` and symlinked into `.claude/skills/`, tracked by `skills-lock.json`. **Unlike some setups, `.agents/` is committed here** — both the vendored files and the symlinks are in git. Manage them with the `skills` CLI (`pnpm dlx skills add|remove|list|update ...`) rather than hand-editing the vendored trees or the lock file; `remove <name> -y` deletes the directory, the symlink and the lock entry together.
 
@@ -108,6 +112,8 @@ The README carries an explicit disclaimer that the author is a hobbyist and welc
 `.claude/ai-policy.md` governs AI-assisted work in this repository. Read it before acting; the constraints below are the parts that bind a session here, not a summary of the whole document.
 
 **A human creates the commit.** An AI tool may prepare changes in a supervised local working tree, but the human contributor reviews the complete result, selects what goes in, and commits personally — and must be able to explain every substantive part of it. So: prepare and explain changes, then stop. Do not commit, amend, push, tag, open or merge a pull request, cut a release, or publish a package. That includes the GHCR image this repo publishes.
+
+**The one exception does not apply to a session here.** The policy's "Supervised automation" clause lets `claude-autofix.yml` commit and push to the head branch of an already open pull request, because Renovate opens those branches without human authorship in the first place and the owner still decides whether to merge. It is scoped to that workflow and to that branch. An interactive session in this working tree is still bound by the paragraph above, and the autofix run itself still may not merge, approve, retarget a base branch, push to `master`, or touch a pull request from a fork.
 
 **Do not touch repository settings, branch protections, secrets, or deployments.** Nothing in this repo needs them, and the policy puts them out of scope regardless.
 
