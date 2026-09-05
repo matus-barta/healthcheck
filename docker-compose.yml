@@ -4,12 +4,20 @@ services:
     container_name: healthcheck # name of the container
     environment: # here we setup our env vars
       - PORT=8082 # listening port
-      - HOST="localhost" # listening IP address
+      - HOST=0.0.0.0 # listening IP address (quotes here would be literal)
       - ROOT_RES="true" # https://<domain>/
       - ENDPOINT_RES="false" # https://<domain>/healthcheck
       - JSON_RES="true" # response in JSON
     ports:
       - 8082:8082 # ports we will be listening on (external port : internal port)
     restart: unless-stopped # dont stop the service
+    read_only: true # the app never writes to disk, so give it no writable filesystem
+    cap_drop:
+      - ALL # it binds a port above 1024 and does nothing else privileged
     security_opt:
-      - no-new-privileges:true # some security stuff not really needed
+      - no-new-privileges:true # stop a process gaining more rights than it started with
+    deploy:
+      resources:
+        limits:
+          cpus: '0.5' # a public endpoint doing trivial work needs very little
+          memory: 128M

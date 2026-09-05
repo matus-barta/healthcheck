@@ -1,7 +1,18 @@
 {
 	"$schema": "https://docs.renovatebot.com/renovate-schema.json",
-	"extends": ["config:recommended"],
+	"extends": ["config:recommended", "helpers:pinGitHubActionDigests"],
 	"minimumReleaseAge": "5 days",
+	"vulnerabilityAlerts": {
+		"description": "Security fixes skip the cooling-off period above; waiting 5 days on a known CVE is the wrong trade.",
+		"minimumReleaseAge": null
+	},
+	"lockFileMaintenance": {
+		"description": "Renovate only bumps direct dependencies, so refresh the whole lockfile weekly to pick up transitive fixes.",
+		"enabled": true,
+		"schedule": ["before 5am on monday"],
+		"automerge": true,
+		"automergeType": "branch"
+	},
 	"packageRules": [
 		{
 			"description": "Merge non-major updates straight to the branch when CI is green. Renovate only opens a PR when the update fails, so a passing bump makes no noise.",
@@ -15,7 +26,7 @@
 			"allowedVersions": "<7"
 		},
 		{
-			"description": "Keep @types/node on the major that matches .nvmrc, the Dockerfile and the CI matrix. Bump this together with the runtime, not on its own.",
+			"description": "Keep @types/node on the major that matches the runtime. Renovate manages the Dockerfile tag; .nvmrc and the CI matrix are updated by hand, so bump all four together.",
 			"matchPackageNames": ["@types/node"],
 			"allowedVersions": "<25"
 		}
