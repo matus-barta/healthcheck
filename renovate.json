@@ -1,12 +1,23 @@
 {
 	"$schema": "https://docs.renovatebot.com/renovate-schema.json",
 	"extends": ["config:recommended"],
+	"minimumReleaseAge": "5 days",
 	"packageRules": [
 		{
-			"description": "Automerge non-major updates",
+			"description": "Merge non-major updates straight to the branch when CI is green. Renovate only opens a PR when the update fails, so a passing bump makes no noise.",
 			"matchUpdateTypes": ["minor", "patch"],
-			"automerge": true
+			"automerge": true,
+			"automergeType": "branch"
+		},
+		{
+			"description": "Stay on TypeScript 6: ts-jest 29 does not expose the compiler API TS 7 needs, and typescript-eslint refuses to load against TS 7.0 (see typescript-eslint issue 10940, which targets TS 7.1). Drop this rule once both support TS 7.",
+			"matchPackageNames": ["typescript"],
+			"allowedVersions": "<7"
+		},
+		{
+			"description": "Keep @types/node on the major that matches .nvmrc, the Dockerfile and the CI matrix. Bump this together with the runtime, not on its own.",
+			"matchPackageNames": ["@types/node"],
+			"allowedVersions": "<25"
 		}
-	],
-	"minimumReleaseAge": "5 days"
+	]
 }
