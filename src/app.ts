@@ -11,8 +11,6 @@ export let rootRes = Boolean(process.env.ROOT_RES ?? true);
 
 const app = express(); // init express
 
-app.use(express.json()); // init to use json middleware
-
 routes(app); // load our routes (defined in routes.ts)
 
 export default app; // export app express object (used mostly in index.ts)
