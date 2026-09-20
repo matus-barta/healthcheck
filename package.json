@@ -3,7 +3,7 @@
 	"version": "0.4.6",
 	"description": "Simple docker container with healthcheck endpoint API",
 	"main": "build/src/index.js",
-	"packageManager": "pnpm@12.4.1",
+	"packageManager": "pnpm@12.4.2",
 	"dependencies": {
 		"dayjs": "1.11.23",
 		"dotenv": "17.4.2",
