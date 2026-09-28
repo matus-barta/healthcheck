@@ -6,14 +6,17 @@ import app, { useJSON, endpointRes, rootRes, port, host } from './app';
 dotenv.config();
 
 // start HTTP server to be listening
-app.listen(port, host, () => {
+// in Express 5 this callback runs once: either when the server is listening, or with an error
+// if it could not start (for example the port is already in use - EADDRINUSE)
+// the Express app itself never emits 'error', so this callback is the place to catch it
+app.listen(port, host, (error) => {
+	if (error) {
+		log.error(`❌ : Server error: ${error}`);
+		process.exit(1); // we can't serve anything, so stop and let Docker/the user restart us
+	}
+
 	log.info(`⚡️ : Server is running at http://${host}:${port}`);
 	checkEnvEndpoints(); // show what setting we are using and check if they are correct
-});
-
-// HTTP server error handling
-app.on('error', (error) => {
-	log.error(`❌ : Server error: ${error}`);
 });
 
 // write to console what configuration we are running and if the config. is incorrect we terminate the application
