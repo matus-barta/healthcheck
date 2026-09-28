@@ -118,8 +118,8 @@ possible:
 - At most one pull request per night, one run per night, capped at 15 turns on Sonnet.
 - A pull request whose newest commit came from Claude is skipped. If Claude has already tried and CI
   is still failing, it needs a person, not another attempt.
-- It runs at 03:10 local time so that the five-hour usage window it opens has expired again before
-  the morning.
+- It is scheduled for 00:10 local time. GitHub starts scheduled runs late - usually 4.5 to 6.5
+  hours - so it really runs in the early morning, and a run more than 8 hours late skips the night.
 
 To try it without spending anything, run it by hand from the Actions tab: `dry_run` defaults to true
 and reports which pull request it would have picked.

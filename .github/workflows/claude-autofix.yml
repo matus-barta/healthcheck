@@ -17,22 +17,22 @@ name: Claude autofix
 
 on:
   schedule:
-    # Both entries mean 03:10 Europe/Bratislava. Only one of them survives the
-    # local-hour guard in `select`, so exactly one run happens per night in
-    # either half of the year:
-    #   01:10 UTC = 03:10 CEST (summer, UTC+2)  -> guard sees hour 3, proceeds
-    #   02:10 UTC = 04:10 CEST                  -> guard sees hour 4, stops
-    #   01:10 UTC = 02:10 CET  (winter, UTC+1)  -> guard sees hour 2, stops
-    #   02:10 UTC = 03:10 CET                   -> guard sees hour 3, proceeds
+    # Both entries mean 00:10 Europe/Bratislava. Only one of them survives the
+    # guard in `select`, which checks the time each entry was *scheduled* for,
+    # so exactly one run happens per night in either half of the year:
+    #   22:10 UTC = 00:10 CEST (summer, UTC+2)  -> guard sees hour 0, proceeds
+    #   23:10 UTC = 01:10 CEST                  -> guard sees hour 1, stops
+    #   22:10 UTC = 23:10 CET  (winter, UTC+1)  -> guard sees hour 23, stops
+    #   23:10 UTC = 00:10 CET                   -> guard sees hour 0, proceeds
     #
-    # 03:10 satisfies both halves of the brief. It is past the ~03:00 weekend
-    # cut-off when the owner stops using Claude, and it is early enough that the
-    # 5-hour usage window this run opens has expired again before 09:00, when the
-    # owner starts. The :10 offset buys roughly 50 minutes of slack, because
-    # GitHub delays scheduled runs under load and silently drops ones it cannot
-    # place; a run delayed past 04:00 skips the night rather than eating into it.
-    - cron: '10 1 * * *'
-    - cron: '10 2 * * *'
+    # Why midnight when the aim is the small hours: GitHub starts scheduled runs
+    # hours late. Over this workflow's first 23 nights (crons at 01:10 and 02:10
+    # UTC) every run started 4.5 to 6.5 hours after its cron time, and none were
+    # dropped. Scheduling at 00:10 puts the real start around 05:00 local. The
+    # guard lets a run through up to 8 hours late (MAX_DELAY_HOURS in the script),
+    # and a later one skips the night.
+    - cron: '10 22 * * *'
+    - cron: '10 23 * * *'
   workflow_dispatch:
     inputs:
       dry_run:

@@ -8,27 +8,66 @@
 // Loaded by actions/github-script, which cannot see the Actions toolkit from an
 // external module. Everything it needs is passed in.
 
+// The local hour the workflow's cron entries are aiming at: 00:10 Europe/Bratislava.
+const LOCAL_TIME_ZONE = 'Europe/Bratislava';
+const LOCAL_HOUR = 0;
+
+// How late a scheduled run may start and still go ahead. GitHub queues scheduled
+// runs far behind their cron time - over this workflow's first 23 nights every run
+// started 4.5 to 6.5 hours late, and the delay was growing - so the window has to
+// be wide. A run later than this skips the night rather than eat into the day.
+const MAX_DELAY_HOURS = 8;
+
 module.exports = async ({ github, context, core }) => {
 	const { owner, repo } = context.repo;
 
 	// Guard the clock. GitHub cron is UTC only and has no notion of DST, so the
 	// workflow declares two schedules an hour apart and this is what tells them
-	// apart - whichever one is not 03:10 local stops here. A manual run skips
-	// the guard entirely; that is the point of running it by hand.
+	// apart. It looks at the time the run was *scheduled* for, not the time it
+	// actually started, because GitHub's delay is hours long and would push both
+	// runs into the same window. A manual run skips the guard entirely; that is
+	// the point of running it by hand.
 	if (context.eventName === 'schedule') {
-		const hour = Number(
+		// The cron line that fired, e.g. '10 22 * * *'. Only minute and hour are used.
+		const cron = context.payload.schedule;
+		if (!cron) {
+			core.info('Scheduled run without a cron expression in the payload. Stopping.');
+			return;
+		}
+		const [minute, hour] = cron.split(' ').map(Number);
+
+		// The most recent moment that cron line matched. A delayed run can start
+		// after midnight UTC, so if today's match is still in the future, the run
+		// belongs to yesterday's.
+		const now = new Date();
+		const scheduled = new Date(now);
+		scheduled.setUTCHours(hour, minute, 0, 0);
+		if (scheduled > now) scheduled.setUTCDate(scheduled.getUTCDate() - 1);
+
+		// Which cron line is the right one depends on DST on that date:
+		// 22:10 UTC is 00:10 in summer (UTC+2), 23:10 UTC is 00:10 in winter (UTC+1).
+		const localHour = Number(
 			new Intl.DateTimeFormat('en-GB', {
-				timeZone: 'Europe/Bratislava',
+				timeZone: LOCAL_TIME_ZONE,
 				hour: 'numeric',
-				hour12: false
-			}).format(new Date())
+				hourCycle: 'h23' // 0-23, so midnight is 0 and never 24
+			}).format(scheduled)
 		);
-		if (hour !== 3) {
+		if (localHour !== LOCAL_HOUR) {
 			core.info(
-				`Local hour is ${hour}, not 3 - this is the wrong half of the year, or GitHub delayed the run past its window. Stopping.`
+				`Cron '${cron}' means local hour ${localHour} at this time of year, not ${LOCAL_HOUR} - this is the other half of the year's entry. Stopping.`
 			);
 			return;
 		}
+
+		const delayHours = (now - scheduled) / 3_600_000;
+		if (delayHours > MAX_DELAY_HOURS) {
+			core.info(
+				`GitHub started this run ${delayHours.toFixed(1)} hours late, more than the ${MAX_DELAY_HOURS} allowed. Skipping tonight.`
+			);
+			return;
+		}
+		core.info(`Cron '${cron}' is tonight's entry; started ${delayHours.toFixed(1)} hours late.`);
 	}
 
 	const prs = await github.paginate(github.rest.pulls.list, {
