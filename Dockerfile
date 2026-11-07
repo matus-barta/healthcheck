@@ -1,5 +1,5 @@
 # we base you dockerfile on debian with node preinstalled
-FROM node:24.22.2-trixie-slim AS base
+FROM node:26.12.1-trixie-slim AS base
 
 ENV PNPM_HOME="/pnpm"
 ENV PATH="$PNPM_HOME:$PATH"
